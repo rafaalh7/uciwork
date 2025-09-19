@@ -1,0 +1,395 @@
+// Ejemplo de uso en una aplicación completa
+import { useDocumentStore } from './store/useDocumentStore';
+
+// En otro componente, podemos acceder al estado de documentos seleccionados
+function DocumentCounter() {
+  const selectedDocuments = useDocumentStore(state => state.selectedDocuments);
+  
+  return (
+    <div>
+      <span>Documentos seleccionados: {selectedDocuments.length}</span>
+    </div>
+  );
+}
+
+// Componente para simular cambio de página
+function OtherPage() {
+  // Al cambiar a esta página, los documentos seleccionados se mantienen
+  const selectedDocuments = useDocumentStore(state => state.selectedDocuments);
+  
+  return (
+    <div>
+      <h2>Otra página</h2>
+      <p>Documentos seleccionados (persistentes): {selectedDocuments.length}</p>
+    </div>
+  );
+}
+/* App.css */
+.app {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.app-header h1 {
+  color: #2c3e50;
+  margin: 0;
+}
+
+.table-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #c0392b;
+}
+
+.btn-icon {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.btn-icon:hover {
+  background-color: #f5f5f5;
+}
+
+.error-message {
+  background-color: #ffecec;
+  color: #e74c3c;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border-left: 4px solid #e74c3c;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.document-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.document-table th,
+.document-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.document-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.document-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.document-table tbody tr.selected {
+  background-color: #e3f2fd;
+}
+
+.empty-table {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 30px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .table-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .bulk-actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+// App.jsx
+import DocumentTable from './components/DocumentTable';
+import './App.css';
+
+function App() {
+  return (
+    <div className="app">
+      <header className="app-header">
+        <h1>Sistema de Gestión de Documentos</h1>
+      </header>
+      <main className="app-main">
+        <DocumentTable />
+      </main>
+    </div>
+  );
+}
+
+export default App;
+// components/DocumentTable.jsx
+import { useState } from 'react';
+import { useDocumentStore } from '../store/useDocumentStore';
+
+const DocumentTable = () => {
+  const { 
+    documents, 
+    selectedDocuments, 
+    toggleDocumentSelection, 
+    toggleSelectAll, 
+    deleteSelectedDocuments, 
+    exportSelectedDocuments 
+  } = useDocumentStore();
+  
+  const [error, setError] = useState('');
+
+  // Verificar si todos los documentos están seleccionados
+  const allSelected = documents.length > 0 && selectedDocuments.length === documents.length;
+  
+  // Verificar si algunos documentos están seleccionados
+  const someSelected = selectedDocuments.length > 0 && !allSelected;
+
+  // Manejar la acción de eliminar
+  const handleDelete = () => {
+    if (selectedDocuments.length === 0) {
+      setError('Por favor, selecciona al menos un documento para eliminar');
+      return;
+    }
+    
+    if (window.confirm(`¿Estás seguro de que quieres eliminar ${selectedDocuments.length} documento(s)?`)) {
+      deleteSelectedDocuments();
+      setError('');
+    }
+  };
+
+  // Manejar la acción de exportar
+  const handleExport = () => {
+    if (selectedDocuments.length === 0) {
+      setError('Por favor, selecciona al menos un documento para exportar');
+      return;
+    }
+    
+    exportSelectedDocuments();
+    setError('');
+  };
+
+  return (
+    <div className="document-table-container">
+      <div className="table-actions">
+        <h2>Gestión de Documentos</h2>
+        
+        <div className="bulk-actions">
+          <button 
+            onClick={handleDelete}
+            className="btn btn-danger"
+            disabled={selectedDocuments.length === 0}
+          >
+            Eliminar seleccionados ({selectedDocuments.length})
+          </button>
+          
+          <button 
+            onClick={handleExport}
+            className="btn btn-primary"
+            disabled={selectedDocuments.length === 0}
+          >
+            Exportar seleccionados ({selectedDocuments.length})
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+
+      <div className="table-responsive">
+        <table className="document-table">
+          <thead>
+            <tr>
+              <th>
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  ref={input => {
+                    if (input) {
+                      input.indeterminate = someSelected;
+                    }
+                  }}
+                  onChange={toggleSelectAll}
+                />
+              </th>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {documents.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="empty-table">
+                  No hay documentos disponibles
+                </td>
+              </tr>
+            ) : (
+              documents.map(document => (
+                <tr key={document.id} className={selectedDocuments.includes(document.id) ? 'selected' : ''}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedDocuments.includes(document.id)}
+                      onChange={() => toggleDocumentSelection(document.id)}
+                    />
+                  </td>
+                  <td>{document.name}</td>
+                  <td>{document.type}</td>
+                  <td>{document.date}</td>
+                  <td>
+                    <button 
+                      className="btn-icon"
+                      onClick={() => toggleDocumentSelection(document.id)}
+                    >
+                      {selectedDocuments.includes(document.id) ? 'Deseleccionar' : 'Seleccionar'}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default DocumentTable;
+// store/useDocumentStore.js
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+export const useDocumentStore = create(
+  persist(
+    (set, get) => ({
+      documents: [
+        { id: 1, name: "Documento1.pdf", type: "PDF", date: "2025-09-01" },
+        { id: 2, name: "Informe.docx", type: "DOCX", date: "2025-09-05" },
+        { id: 3, name: "Presentacion.pptx", type: "PPTX", date: "2025-09-10" },
+        { id: 4, name: "HojaCalculo.xlsx", type: "XLSX", date: "2025-09-15" },
+        { id: 5, name: "Imagen.jpg", type: "JPG", date: "2025-09-18" }
+      ],
+      selectedDocuments: [],
+      
+      // Agregar o eliminar documentos seleccionados
+      toggleDocumentSelection: (documentId) => {
+        set((state) => {
+          const isSelected = state.selectedDocuments.includes(documentId);
+          return {
+            selectedDocuments: isSelected
+              ? state.selectedDocuments.filter(id => id !== documentId)
+              : [...state.selectedDocuments, documentId]
+          };
+        });
+      },
+      
+      // Seleccionar o deseleccionar todos los documentos
+      toggleSelectAll: () => {
+        set((state) => ({
+          selectedDocuments: state.selectedDocuments.length === state.documents.length
+            ? []
+            : state.documents.map(doc => doc.id)
+        }));
+      },
+      
+      // Eliminar documentos seleccionados
+      deleteSelectedDocuments: () => {
+        set((state) => {
+          const updatedDocuments = state.documents.filter(
+            doc => !state.selectedDocuments.includes(doc.id)
+          );
+          return {
+            documents: updatedDocuments,
+            selectedDocuments: []
+          };
+        });
+      },
+      
+      // Exportar documentos seleccionados (simulado)
+      exportSelectedDocuments: () => {
+        const { selectedDocuments, documents } = get();
+        const selectedDocsData = documents.filter(doc => 
+          selectedDocuments.includes(doc.id)
+        );
+        
+        // Simulamos la exportación mostrando los datos en consola
+        console.log("Exportando documentos:", selectedDocsData);
+        alert(`Exportando ${selectedDocsData.length} documentos seleccionados`);
+        
+        // En una implementación real, aquí iría la lógica de exportación
+        return selectedDocsData;
+      }
+    }),
+    {
+      name: 'document-storage', // nombre para el almacenamiento
+    }
+  )
+);
