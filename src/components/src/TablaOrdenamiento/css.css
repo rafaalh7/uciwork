@@ -1,0 +1,17 @@
+/* styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Estilos para mejorar la experiencia de usuario */
+.sortable-header {
+  transition: background-color 0.2s ease;
+}
+
+.sortable-header:hover {
+  background-color: #f3f4f6;
+}
