@@ -1,0 +1,12 @@
+// package.json
+{
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "framer-motion": "^10.16.4",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.0.0",
+    "@storybook/react": "^7.0.0",
+    "lucide-react": "^0.288.0"
+  }
+}
