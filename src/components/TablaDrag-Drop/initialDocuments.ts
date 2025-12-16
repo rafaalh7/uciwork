@@ -1,0 +1,60 @@
+import { Document } from '../types/document';
+
+export const initialDocuments: Document[] = [
+  {
+    id: '1',
+    title: 'Informe Anual 2023',
+    priority: 1,
+    type: 'Reporte',
+    lastUpdated: '2024-01-15',
+    status: 'approved',
+  },
+  {
+    id: '2',
+    title: 'Propuesta de Proyecto X',
+    priority: 2,
+    type: 'Propuesta',
+    lastUpdated: '2024-01-14',
+    status: 'reviewed',
+  },
+  {
+    id: '3',
+    title: 'Contrato de Servicios',
+    priority: 3,
+    type: 'Contrato',
+    lastUpdated: '2024-01-13',
+    status: 'pending',
+  },
+  {
+    id: '4',
+    title: 'Análisis de Mercado',
+    priority: 4,
+    type: 'Análisis',
+    lastUpdated: '2024-01-12',
+    status: 'approved',
+  },
+  {
+    id: '5',
+    title: 'Políticas de Seguridad',
+    priority: 5,
+    type: 'Política',
+    lastUpdated: '2024-01-11',
+    status: 'reviewed',
+  },
+  {
+    id: '6',
+    title: 'Presupuesto Q1 2024',
+    priority: 6,
+    type: 'Financiero',
+    lastUpdated: '2024-01-10',
+    status: 'pending',
+  },
+  {
+    id: '7',
+    title: 'Manual de Procedimientos',
+    priority: 7,
+    type: 'Manual',
+    lastUpdated: '2024-01-09',
+    status: 'approved',
+  },
+];
